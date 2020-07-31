@@ -105,6 +105,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void onbtnPlayClicked() {
         if(!musicPlayerService.isPlaying()){
+
+            Intent intent = new Intent(MainActivity.this,MusicPlayerService.class);
+            startService(intent);
+
             musicPlayerService.play();
             btnPlay.setText("pause");
             tvStatus.setText("PLAYING");
