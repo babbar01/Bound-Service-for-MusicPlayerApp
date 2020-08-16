@@ -1,6 +1,7 @@
 package com.example.bound_service;
 
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -53,19 +54,57 @@ public class MusicPlayerService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        showNotification();
+        switch (intent.getAction())
+        {
+            case constants.NOTIFICATION_ACTION_PLAY:{
+                play();
+                break;
+            }
+            case constants.NOTIFICATION_ACTION_PAUSE:{
+                pause();
+                break;
+            }
+            case constants.NOTIFICATION_ACTION_STOP:{
+                stop();
+                break;
+            }
+            case constants.NOTIFICATION_ACTION_START:{
+                showNotification();
+                break;
+            }
+            default:{
+                stopSelf();
+            }
+        }
         Log.d(MYTAG, "onStartCommand: ");
         return START_NOT_STICKY;
     }
 
     private void  showNotification() {
 
-        // TODO : apply buttons on notification to play/pause music
+        Intent playIntent = new Intent(this,MusicPlayerService.class);
+        playIntent.setAction(constants.NOTIFICATION_ACTION_PLAY);
+
+        PendingIntent playPendingIntent = PendingIntent.getService(this,0,playIntent,0);
+
+
+        Intent pauseIntent = new Intent(this,MusicPlayerService.class);
+        pauseIntent.setAction(constants.NOTIFICATION_ACTION_PAUSE);
+
+        PendingIntent pausePendingIntent = PendingIntent.getService(this,0,pauseIntent,0);
+
+        Intent stopIntent = new Intent(this,MusicPlayerService.class);
+        stopIntent.setAction(constants.NOTIFICATION_ACTION_STOP);
+
+        PendingIntent stopPendingIntent = PendingIntent.getService(this,0,stopIntent,0);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder
                 (this,App.CHANNEL_TWO)
                 .setSmallIcon(R.drawable.ic_music_note_black_24dp)
                 .setChannelId(App.CHANNEL_TWO)
+                .addAction(R.mipmap.ic_launcher,"PLAY",playPendingIntent)
+                .addAction(R.mipmap.ic_launcher,"PAUSE",pausePendingIntent)
+                .addAction(R.mipmap.ic_launcher,"STOP",stopPendingIntent)
                 .setContentTitle("Music Running")
                 .setContentText("currently music is playing in background");
 
@@ -117,6 +156,7 @@ public class MusicPlayerService extends Service {
             mediaPlayer.release();
             mediaPlayer = null;
             mediaStatus = false;
+            stopForeground(true);
         }
     }
 

@@ -107,7 +107,17 @@ public class MainActivity extends AppCompatActivity {
         if(!musicPlayerService.isPlaying()){
 
             Intent intent = new Intent(MainActivity.this,MusicPlayerService.class);
+            intent.setAction(constants.NOTIFICATION_ACTION_START);
             startService(intent);
+
+            // this startService is just for the first time when we had bind our service to activity but the
+            // service reallly hadn't started
+
+
+            // Because binding to service doesn't mean that we are starting the service
+            // it will be started by startService but there is one thing that is important which is
+            // that the service will not be destroyed if stopSelf() or stopService called when it
+            // is binded to some component
 
             musicPlayerService.play();
             btnPlay.setText("pause");
