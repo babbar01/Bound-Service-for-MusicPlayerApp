@@ -1,5 +1,6 @@
 package com.example.bound_service;
 
+import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -7,6 +8,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 public class MusicPlayerService extends Service {
@@ -50,7 +52,26 @@ public class MusicPlayerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
+        showNotification();
+        Log.d(MYTAG, "onStartCommand: ");
         return START_NOT_STICKY;
+    }
+
+    private void  showNotification() {
+
+        // TODO : apply buttons on notification to play/pause music
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder
+                (this,App.CHANNEL_TWO)
+                .setSmallIcon(R.drawable.ic_music_note_black_24dp)
+                .setChannelId(App.CHANNEL_TWO)
+                .setContentTitle("Music Running")
+                .setContentText("currently music is playing in background");
+
+        startForeground(1,builder.build());
+
+
     }
 
     boolean isPlaying()
@@ -70,6 +91,8 @@ public class MusicPlayerService extends Service {
                     intent.putExtra("result","done");
 
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+
+                    stopForeground(true);
 
                     stopSelf();
                 }
@@ -101,6 +124,8 @@ public class MusicPlayerService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Log.d(MYTAG, "onDestroy: ");
+
+
 
         if(mediaPlayer != null){
             mediaPlayer.stop();
